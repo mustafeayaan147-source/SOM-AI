@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="so">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SomAI — AI Assistant</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#f5f7fb;color:#172033}.app{min-height:100vh;display:flex}.side{width:260px;background:#101827;color:#fff;padding:18px;display:flex;flex-direction:column}.brand{font-size:24px;font-weight:800;margin-bottom:24px}.brand span{color:#63e6be}.new{border:1px solid #334155;background:#182335;color:#fff;border-radius:12px;padding:12px;text-align:left;font-size:15px}.nav{margin-top:18px;display:grid;gap:7px}.nav button{background:transparent;border:0;color:#cbd5e1;padding:11px;border-radius:10px;text-align:left;font-size:14px}.nav button:hover{background:#1e293b}.premium{margin-top:auto;background:linear-gradient(135deg,#263b7a,#155e75);padding:15px;border-radius:14px}.premium b{display:block;margin-bottom:5px}.premium button{margin-top:10px;width:100%;border:0;border-radius:9px;padding:10px;font-weight:700}.main{flex:1;display:flex;flex-direction:column;min-width:0}.top{height:62px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;padding:0 22px}.status{font-size:14px;color:#64748b}.avatar{width:36px;height:36px;border-radius:50%;background:#dbeafe;display:grid;place-items:center;font-weight:700}.chat{flex:1;overflow:auto;padding:30px 18px 130px}.welcome{max-width:760px;margin:40px auto}.welcome h1{font-size:38px;margin:0 0 8px}.welcome p{color:#64748b}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:28px}.card{background:#fff;border:1px solid #e5e7eb;border-radius:15px;padding:17px;text-align:left}.card b{display:block;margin-bottom:5px}.card span{font-size:13px;color:#64748b}.messages{max-width:760px;margin:auto}.msg{display:flex;gap:12px;margin:18px 0}.bubble{padding:13px 16px;border-radius:15px;line-height:1.5;max-width:85%;white-space:pre-wrap}.ai .bubble{background:#fff;border:1px solid #e5e7eb}.user{justify-content:flex-end}.user .bubble{background:#172033;color:#fff}.composer{position:fixed;bottom:0;left:260px;right:0;padding:15px;background:linear-gradient(transparent,#f5f7fb 25%)}form{max-width:760px;margin:auto;background:#fff;border:1px solid #dbe1ea;border-radius:17px;padding:8px;display:flex;gap:8px;box-shadow:0 8px 25px #17203312}textarea{flex:1;border:0;outline:0;resize:none;padding:10px;font:inherit;min-height:42px;max-height:120px}form button{align-self:end;border:0;background:#172033;color:#fff;border-radius:12px;padding:11px 15px;font-weight:700}@media(max-width:700px){.side{display:none}.composer{left:0}.welcome h1{font-size:30px}.cards{grid-template-columns:1fr}.top{padding:0 15px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+<div class="brand">Som<span>AI</span></div>
+<button class="new" onclick="newChat()">＋ Chat cusub</button>
+<div class="nav"><button>💬 Chats</button><button>📚 Study</button><button>✍️ Writing</button><button>🌍 Translation</button><button>💻 Coding</button><button>⚙️ Settings</button></div>
+<div class="premium"><b>SomAI Premium</b><small>Hel awood dheeraad ah iyo features cusub.</small><button onclick="alert('Premium wuxuu ku xirmayaa payment system-ka marka dambe.')">Upgrade</button></div>
+</aside>
+<main class="main">
+<header class="top"><div><b>SomAI</b><div class="status">AI Assistant • Somali & English</div></div><div class="avatar">N</div></header>
+<section class="chat" id="chat">
+<div class="welcome" id="welcome"><h1>Maxaan kaa caawiyaa?</h1><p>Weydii SomAI su'aal, cashar, turjumaad ama fikrad.</p>
+<div class="cards">
+<button class="card" onclick="fill('Ii sharax casharka IP address Somali ahaan')"><b>📚 Waxbarasho</b><span>Casharrada si fudud u sharax</span></button>
+<button class="card" onclick="fill('Ii samee CV professional ah')"><b>✍️ Qoraal</b><span>CV, emails iyo qoraallo</span></button>
+<button class="card" onclick="fill('Translate: I want to improve my English')"><b>🌍 Translation</b><span>Somali ↔ English</span></button>
+<button class="card" onclick="fill('Ii samee fikrad website casri ah')"><b>💡 Fikrado</b><span>Ganacsi iyo technology</span></button>
+</div></div>
+<div class="messages" id="messages"></div>
+</section>
+<div class="composer"><form onsubmit="send(event)"><textarea id="input" placeholder="Qor fariintaada..." rows="1"></textarea><button id="sendBtn">Send</button></form></div>
+</main></div>
+<script>
+const input=document.getElementById('input'),messages=document.getElementById('messages'),welcome=document.getElementById('welcome'),sendBtn=document.getElementById('sendBtn');
+function fill(x){input.value=x;input.focus()}
+function add(text,type){let row=document.createElement('div');row.className='msg '+type;let b=document.createElement('div');b.className='bubble';b.textContent=text;row.appendChild(b);messages.appendChild(row);document.querySelector('.chat').scrollTop=99999}
+async function send(e){
+ e.preventDefault(); let q=input.value.trim(); if(!q)return;
+ welcome.style.display='none'; add(q,'user'); input.value=''; sendBtn.disabled=true; sendBtn.textContent='...';
+ add('SomAI ayaa ka fikiraya...','ai'); const thinking=messages.lastElementChild;
+ try{
+   const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q})});
+   const data=await r.json();
+   thinking.remove();
+   if(!r.ok) throw new Error(data.error||'Request failed');
+   add(data.reply,'ai');
+ }catch(err){thinking.remove();add('Cilad: '+err.message,'ai')}
+ finally{sendBtn.disabled=false;sendBtn.textContent='Send'}
+}
+function newChat(){messages.innerHTML='';welcome.style.display='block';input.value=''}
+</script>
+</body>
+</html>
